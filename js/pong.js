@@ -1,7 +1,7 @@
 var animate = window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
-  function(callback) { window.setTimeout(callback, 1000/60) };
+  function(callback) { window.setTimeout(callback, 1000/60)};
 
 var canvas = document.createElement("canvas");
 var width = 500;
@@ -23,6 +23,8 @@ var player = new Player();
 var computer = new Computer();
 var ball = new Ball(center_x, center_y);
 
+var keysDown = {};
+
 var step = function() {
 	update();
 	render();
@@ -30,6 +32,8 @@ var step = function() {
 };
 
 var update = function() {
+    player.update();
+    computer.update(ball);
     ball.update(player.paddle, computer.paddle);
 };
 
@@ -55,13 +59,23 @@ Paddle.prototype.render = function() {
     context.fillRect(this.x, this.y, this.width, this.height);
 };
 
+Paddle.prototype.move = function(x,y) {
+    this.x += x;
+    this.y += y;
+    this.x_speed = x;
+    this.y_speed = y;
+    if(this.x < 0){
+        this.x = 0;
+        this.x_speed = 0;
+    }
+    else if(this.x + this.width > width){
+        this.x = width - this.width;
+        this.x_speed = 0;
+    }
+};
+
 function Player() {
     this.paddle = new Paddle((width - paddle_width)/2, 780, paddle_width, paddle_height);
-    this.score = 0;
-}
-
-function Computer() {
-    this.paddle = new Paddle((width - paddle_width)/2, 10, paddle_width, paddle_height);
     this.score = 0;
 }
 
@@ -69,8 +83,45 @@ Player.prototype.render = function() {
     this.paddle.render();
 };
 
+Player.prototype.update = function() {
+    for (var key in keysDown) {
+        var value = Number(key);
+        if(value == 37){ // left arrow key
+            this.paddle.move(-4,0);
+        }
+        else if(value == 39){// right arrow key
+            this.paddle.move(4,0);
+        }
+        else{
+            this.paddle.move(0,0);
+        }
+    }
+};
+
+function Computer() {
+    this.paddle = new Paddle((width - paddle_width)/2, 10, paddle_width, paddle_height);
+    this.score = 0;
+}
+
 Computer.prototype.render = function() {
     this.paddle.render();
+};
+
+Computer.prototype.update = function (ball) {
+    var x_pos = ball.x;
+    var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
+    if(diff < 0 && diff < -4) { // max speed left
+        diff = -5;
+    } else if(diff > 0 && diff > 4) { // max speed right
+        diff = 5;
+    }
+
+    this.paddle.move(diff, 0);
+    if(this.paddle.x < 0) {
+        this.paddle.x = 0;
+    } else if (this.paddle.x + this.paddle.width > 400) {
+        this.paddle.x = 400 - this.paddle.width;
+    }  
 };
 
 function Ball (x, y) {
@@ -139,7 +190,16 @@ Ball.prototype.update = function(paddle1, paddle2) {
     }
 };
 
+
 window.onload = function() {
     document.body.appendChild(canvas);
     animate(step);
 };
+
+window.addEventListener("keydown", function(event) {
+    keysDown[event.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(event) {
+    delete keysDown[event.keyCode];
+});
