@@ -4,9 +4,10 @@ var animate = window.requestAnimationFrame ||
   function(callback) { window.setTimeout(callback, 1000/60)};
 
 var canvas = document.createElement("canvas");
-var width = 500;
-var height= 800;
-var paddle_width = 50;
+var width = window.innerWidth;
+var height= window.innerHeight;
+console.log(window.innerWidth);
+var paddle_width = 100;
 var paddle_height = 10;
 var center_x = width/2;
 var center_y = height/2;
@@ -75,12 +76,16 @@ Paddle.prototype.move = function(x,y) {
 };
 
 function Player() {
-    this.paddle = new Paddle((width - paddle_width)/2, 780, paddle_width, paddle_height);
+    this.paddle = new Paddle((width - paddle_width)/2, height-20, paddle_width, paddle_height);
     this.score = 0;
 }
 
 Player.prototype.render = function() {
     this.paddle.render();
+    context.fillStyle = "#F44336";
+    context.font = '70px Roboto';
+    var text="Player: "+this.score;
+    context.fillText(text,0,height-10);
 };
 
 Player.prototype.update = function() {
@@ -105,6 +110,10 @@ function Computer() {
 
 Computer.prototype.render = function() {
     this.paddle.render();
+    context.fillStyle = "#F44336";
+    context.font = '70px Roboto';
+    var text="Computer: "+this.score;
+    context.fillText(text,width-context.measureText(text).width,height-10);
 };
 
 Computer.prototype.update = function (ball) {
@@ -119,8 +128,8 @@ Computer.prototype.update = function (ball) {
     this.paddle.move(diff, 0);
     if(this.paddle.x < 0) {
         this.paddle.x = 0;
-    } else if (this.paddle.x + this.paddle.width > 400) {
-        this.paddle.x = 400 - this.paddle.width;
+    } else if (this.paddle.x + this.paddle.width > width) {
+        this.paddle.x = width - this.paddle.width;
     }  
 };
 
@@ -172,7 +181,7 @@ Ball.prototype.update = function(paddle1, paddle2) {
         this.y_speed = init_y_speed;
     }
 
-    if(top_y > 300) {
+    if(top_y > height/2) {
         if(top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y && top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x) {
           // hit the player's paddle
           this.y_speed = -init_y_speed;
