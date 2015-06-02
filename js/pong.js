@@ -6,7 +6,6 @@ var animate = window.requestAnimationFrame ||
 var canvas = document.createElement("canvas");
 var width = window.innerWidth;
 var height= window.innerHeight;
-console.log(window.innerWidth);
 var paddle_width = 100;
 var paddle_height = 10;
 var center_x = width/2;
@@ -25,6 +24,9 @@ var computer = new Computer();
 var ball = new Ball(center_x, center_y);
 
 var keysDown = {};
+
+var clicked=false;
+var onePlayer=true;
 
 var step = function() {
 	update();
@@ -199,10 +201,32 @@ Ball.prototype.update = function(paddle1, paddle2) {
     }
 };
 
-
-window.onload = function() {
+function onClick () {
     document.body.appendChild(canvas);
     animate(step);
+}
+
+window.onload = function() {
+    var btn1=document.createElement("BUTTON");
+    var btn2=document.createElement("BUTTON");
+    btn1.appendChild(document.createTextNode("One Player"));
+    btn2.appendChild(document.createTextNode("Two Players"));
+    document.body.appendChild(btn1);
+    document.body.appendChild(btn2);
+    
+    btn1.addEventListener("click", function () {
+        clicked=true;
+        console.log(clicked);
+        document.body.removeChild(btn1);
+        document.body.removeChild(btn2);
+        onClick();
+    });
+    btn2.addEventListener("click", function () {
+        clicked=true;
+        onePlayer=false;
+        console.log(clicked);
+        console.log(onePlayer);
+    });
 };
 
 window.addEventListener("keydown", function(event) {
@@ -211,4 +235,9 @@ window.addEventListener("keydown", function(event) {
 
 window.addEventListener("keyup", function(event) {
     delete keysDown[event.keyCode];
+});
+
+window.addEventListener("resize", function(event) {
+    width=window.innerWidth;
+    height=window.innerHeight;
 });
