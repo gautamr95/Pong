@@ -209,6 +209,8 @@ function onClick () {
 window.onload = function() {
     var btn1=document.createElement("BUTTON");
     var btn2=document.createElement("BUTTON");
+    btn1.className = "btn btn-default";
+    btn2.className = "btn btn-default";
     btn1.appendChild(document.createTextNode("One Player"));
     btn2.appendChild(document.createTextNode("Two Players"));
     document.body.appendChild(btn1);
