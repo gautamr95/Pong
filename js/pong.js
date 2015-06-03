@@ -207,21 +207,17 @@ function onClick () {
 }
 
 window.onload = function() {
-    var btn1=document.createElement("BUTTON");
-    var btn2=document.createElement("BUTTON");
-    btn1.className = "btn btn-default";
-    btn2.className = "btn btn-default";
-    btn1.appendChild(document.createTextNode("One Player"));
-    btn2.appendChild(document.createTextNode("Two Players"));
-    document.body.appendChild(btn1);
-    document.body.appendChild(btn2);
-    
+    var btn1=document.getElementById("one_player");
+    var btn2=document.getElementById("two_player");
+    btn1.parentElement.style.margin=0;
     btn1.addEventListener("click", function () {
         clicked=true;
         console.log(clicked);
-        document.body.removeChild(btn1);
-        document.body.removeChild(btn2);
+        setTimeout(function(){
+        btn1.parentElement.removeChild(btn1);
+        btn2.parentElement.removeChild(btn2);
         onClick();
+    },200);
     });
     btn2.addEventListener("click", function () {
         clicked=true;
@@ -239,7 +235,7 @@ window.addEventListener("keyup", function(event) {
     delete keysDown[event.keyCode];
 });
 
-window.addEventListener("resize", function(event) {
-    width=window.innerWidth;
-    height=window.innerHeight;
-});
+// window.addEventListener("resize", function(event) {
+//     width=window.innerWidth;
+//     height=window.innerHeight;
+// });
