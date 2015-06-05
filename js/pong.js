@@ -19,14 +19,14 @@ canvas.height = height;
 
 var context = canvas.getContext("2d");
 
-var player = new Player();
-var computer = new Computer();
+var player1;
+var player2;
 var ball = new Ball(center_x, center_y);
 
 var keysDown = {};
 
 var clicked=false;
-var onePlayer=true;
+var one_player;
 
 var step = function() {
 	update();
@@ -35,16 +35,19 @@ var step = function() {
 };
 
 var update = function() {
-    player.update();
-    computer.update(ball);
-    ball.update(player.paddle, computer.paddle);
+    player1.update();
+    if(one_player)
+        player2.update(ball);
+    else
+        player2.update();
+    ball.update(player1.paddle, player2.paddle);
 };
 
 var render = function () {
     context.fillStyle = "#3F51B5";
     context.fillRect(0, 0, width, height);
-    player.render();
-    computer.render();
+    player1.render();
+    player2.render();
     ball.render();
 };
 
@@ -77,20 +80,24 @@ Paddle.prototype.move = function(x,y) {
     }
 };
 
-function Player() {
+function Player1() {
     this.paddle = new Paddle((width - paddle_width)/2, height-20, paddle_width, paddle_height);
     this.score = 0;
 }
 
-Player.prototype.render = function() {
+Player1.prototype.render = function() {
     this.paddle.render();
     context.fillStyle = "#F44336";
     context.font = '70px Roboto';
-    var text="Player: "+this.score;
-    context.fillText(text,0,height-10);
+    var text;
+    if(one_player)
+        text="Player: "+this.score;
+    else
+        text="Player One: "+this.score;
+    context.fillText(text,0,height-20);
 };
 
-Player.prototype.update = function() {
+Player1.prototype.update = function() {
     for (var key in keysDown) {
         var value = Number(key);
         if(value == 37){ // left arrow key
@@ -105,6 +112,36 @@ Player.prototype.update = function() {
     }
 };
 
+function Player2() {
+    this.paddle = new Paddle((width - paddle_width)/2, 10, paddle_width, paddle_height);
+    this.score = 0;
+}
+
+Player2.prototype.render = function() {
+    this.paddle.render();
+    context.fillStyle = "#F44336";
+    context.font = '70px Roboto';
+    var text="Player Two: "+this.score;
+    context.fillText(text,width-context.measureText(text).width,height-20);
+};
+
+Player2.prototype.update = function() {
+    for (var key in keysDown) {
+        var value = Number(key);
+        if(value == 65){ // 'A'  key
+            this.paddle.move(-4,0);
+        }
+        else if(value == 68){// 'D' arrow key
+            this.paddle.move(4,0);
+        }
+        else{
+            this.paddle.move(0,0);
+        }
+    }
+};
+
+
+
 function Computer() {
     this.paddle = new Paddle((width - paddle_width)/2, 10, paddle_width, paddle_height);
     this.score = 0;
@@ -115,7 +152,7 @@ Computer.prototype.render = function() {
     context.fillStyle = "#F44336";
     context.font = '70px Roboto';
     var text="Computer: "+this.score;
-    context.fillText(text,width-context.measureText(text).width,height-10);
+    context.fillText(text,width-context.measureText(text).width,height-20);
 };
 
 Computer.prototype.update = function (ball) {
@@ -169,14 +206,14 @@ Ball.prototype.update = function(paddle1, paddle2) {
     }
 
     if(this.y < 0){ // Player gets a point
-        player.score += 1;
+        player1.score += 1;
         this.x = center_x;
         this.y = center_y;
         this.x_speed = init_x_speed;
         this.y_speed = init_y_speed;
     }
     else if(this.y > height){ // Computer gets a point
-        computer.score +=1;
+        player2.score +=1;
         this.x = center_x;
         this.y = center_y;
         this.x_speed = init_x_speed;
@@ -193,7 +230,7 @@ Ball.prototype.update = function(paddle1, paddle2) {
     } 
       else {
         if(top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y && top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x) {
-          // hit the computer's paddle
+          // hit the player2's paddle
           this.y_speed = init_y_speed;
           this.x_speed += (paddle2.x_speed / 2);
           this.y += this.y_speed;
@@ -203,6 +240,11 @@ Ball.prototype.update = function(paddle1, paddle2) {
 
 function onClick () {
     document.body.appendChild(canvas);
+    player1 = new Player1();
+    if(one_player)
+        player2 = new Computer();
+    else
+        player2 = new Player2();
     animate(step);
 }
 
@@ -212,18 +254,22 @@ window.onload = function() {
     btn1.parentElement.style.margin=0;
     btn1.addEventListener("click", function () {
         clicked=true;
+        one_player=true;
         console.log(clicked);
         setTimeout(function(){
-        btn1.parentElement.removeChild(btn1);
-        btn2.parentElement.removeChild(btn2);
-        onClick();
-    },200);
+            btn1.parentElement.removeChild(btn1);
+            btn2.parentElement.removeChild(btn2);
+            onClick();
+        },200);
     });
     btn2.addEventListener("click", function () {
         clicked=true;
-        onePlayer=false;
-        console.log(clicked);
-        console.log(onePlayer);
+        one_player=false;
+        setTimeout(function(){
+            btn1.parentElement.removeChild(btn1);
+            btn2.parentElement.removeChild(btn2);
+            onClick();
+        },200);
     });
 };
 
