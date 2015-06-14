@@ -251,6 +251,7 @@ function onClick () {
 window.onload = function() {
     var btn1=document.getElementById("one_player");
     var btn2=document.getElementById("two_player");
+    var header=document.getElementById("header");
     btn1.parentElement.style.margin=0;
     btn1.addEventListener("click", function () {
         clicked=true;
@@ -259,6 +260,7 @@ window.onload = function() {
         setTimeout(function(){
             btn1.parentElement.removeChild(btn1);
             btn2.parentElement.removeChild(btn2);
+            header.parentElement.removeChild(header);
             onClick();
         },200);
     });
@@ -268,6 +270,7 @@ window.onload = function() {
         setTimeout(function(){
             btn1.parentElement.removeChild(btn1);
             btn2.parentElement.removeChild(btn2);
+            header.parentElement.removeChild(header);
             onClick();
         },200);
     });
